@@ -1,0 +1,5 @@
+#!/usr/bin/php
+<?php
+require dirname(__FILE__).'/../../../config.php'; // kernel/config.php <-- kernel/vendor/phasty/tman/(this)
+$taskManager = new \Tman\TaskManager($argc, $argv);
+$taskManager->run();

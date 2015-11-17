@@ -1,0 +1,20 @@
+{
+    "name": "phasty/tman",
+    "description" : "Tman - task manager for php.",
+    "type": "library",
+    "license" : "proprietary",
+    "require": {
+    },
+    "authors": [
+        {
+            "name": "Dmitry Cheremnykh",
+            "email": "lockalister@gmail.com"
+        }
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "Tman\\" : "src"
+        }
+    },
+    "minimum-stability" : "stable"
+}
