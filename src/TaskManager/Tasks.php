@@ -1,5 +1,5 @@
 <?php
-namespace Tman\TaskManager {
+namespace Phasty\Tman\TaskManager {
     class Tasks implements IMethod {
         protected $showPretends = false;
         protected $rootDirLen = 0;
@@ -15,7 +15,7 @@ namespace Tman\TaskManager {
             $list = [];
             \Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$pretend, &$list) {
                 $implements = class_implements($className);
-                if (!isset($implements[ "Tman\\Task\\ITask" ])) {
+                if (!isset($implements[ "Phasty\\Tman\\Task\\ITask" ])) {
                     if ($this->showPretends) {
                         $pretend []= \Tman\TaskManager::fromClassName($className);
                     }

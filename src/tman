@@ -1,6 +1,11 @@
 #!/usr/bin/php
 <?php
-// kernel/config.php <-- kernel/vendor/phasty/tman/src/(this)
+
+/** Example file for tman
+*  Load project config kernel/config.php <-- kernel/vendor/phasty/tman/src/(this)
+*  Uses Project vars if defined: DIR_TASKS, DIR_LOGS
+*/
+
 require dirname(__FILE__).'/kernel/config.php';
 $taskManager = new \Tman\TaskManager($argc, $argv);
 $taskManager->run();

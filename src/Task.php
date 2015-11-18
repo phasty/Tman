@@ -1,5 +1,5 @@
 <?php
-namespace Tman {
+namespace Phasty\Tman {
     use \Phasty\Log\File as log;
     abstract class Task implements \Tman\Task\ITask {
         static public $exceptions = [];

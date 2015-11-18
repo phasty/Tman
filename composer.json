@@ -3,12 +3,6 @@
     "description" : "Tman - task manager for php.",
     "type": "library",
     "license" : "proprietary",
-    "repositories": [
-        {
-            "type" : "vcs",
-            "url"  : "git@github.com:phasty/Log.git"
-        }
-    ],
     "require": {
         "phasty/log": ">=0.1"
     },
@@ -20,7 +14,7 @@
     ],
     "autoload" : {
         "psr-4" : {
-            "Tman\\" : "src"
+            "Phasty\\Tman\\" : "src"
         }
     },
     "minimum-stability" : "stable"

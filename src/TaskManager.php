@@ -1,5 +1,5 @@
 <?php
-namespace Tman {
+namespace Phasty\Tman {
     class TaskManager {
         static protected $shortOptionsDecl = "r:";
         static protected $fullOptionsDecl = array(
@@ -62,7 +62,7 @@ namespace Tman {
                 return;
             }
             
-            $class = self::getClassInstance($className, [ "Tman\\TaskManager\\IMethod" ]);
+            $class = self::getClassInstance($className, [ "Phasty\\Tman\\TaskManager\\IMethod" ]);
             
             if (!$class) {
                 self::usage();
@@ -79,7 +79,6 @@ namespace Tman {
             if (empty($tasksDir)) {
                 $tasksDir = $this->tasksDir;
             }
-            // echo "tasksDir: $tasksDir\n";
             foreach (glob("$tasksDir/*") as $taskFile) {
                 if (is_dir($taskFile)) {
                     self::scanDir($callback, $taskFile);
@@ -89,12 +88,11 @@ namespace Tman {
                     continue;
                 }
                 $className = self::getTasksNs() .  str_replace(DS, "\\", substr($taskFile, strlen($this->tasksDir) + 1, -4));
-                // echo $className."::::$taskFile\n";
                 if (!class_exists($className)) {
                     continue;
                 }
                 $implements = class_implements($className);
-                if (!isset($implements[ "Tman\\Task\\ITask" ]) & !$getPretendings) {
+                if (!isset($implements[ "Phasty\\Tman\\Task\\ITask" ]) & !$getPretendings) {
                     continue;
                 }
                 $callback($className);

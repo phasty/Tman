@@ -1,5 +1,5 @@
 <?php
-namespace Tman\TaskManager {
+namespace Phasty\Tman\TaskManager {
     class Crontab implements IMethod {
         
         public function run($argc, array $argv) {

@@ -1,5 +1,5 @@
 <?php
-namespace Tman\TaskManager {
+namespace Phasty\Tman\TaskManager {
     class Run implements IMethod {
         public function run($argc, array $argv) {
             if (empty($argc)) {
@@ -7,7 +7,7 @@ namespace Tman\TaskManager {
                 return;
             }
             $taskClassName = \Tman\TaskManager::getTasksNs() . array_shift($argv);
-            $task = \Tman\TaskManager::getClassInstance($taskClassName, [ "Tman\\Task\\ITask" ]);
+            $task = \Tman\TaskManager::getClassInstance($taskClassName, [ "Phasty\\Tman\\Task\\ITask" ]);
             if (!$task) {
                 self::usage();
                 return;
