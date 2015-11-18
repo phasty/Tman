@@ -21,7 +21,7 @@ namespace Phasty\Tman\TaskManager {
                 $className = \Phasty\Tman\TaskManager::fromClassName(substr($className, strlen(\Phasty\Tman\TaskManager::getTasksNs())));
                 foreach ((array)$runTimes as $args =>  $runTime) {
                     if (substr(trim($runTime), 0, 1) === '#' && $cleanOutput) continue;
-                    $list []=  "$runTime tman run " . "$className" . (is_string($args) ? " $args" : "");
+                    $list []=  "$runTime " . (defined('DIR_ROOT') ? DIR_ROOT : getcwd() . "/") ."tman run " . "$className" . (is_string($args) ? " $args" : "");
                 }
             });
             echo implode("\n", $list)."\n";
