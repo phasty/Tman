@@ -4,6 +4,7 @@
     "type": "library",
     "license" : "proprietary",
     "require": {
+        "phasty/log": ">=0.1"
     },
     "authors": [
         {

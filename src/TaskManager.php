@@ -5,11 +5,13 @@ namespace Tman {
         static protected $fullOptionsDecl = array(
             "run:"
         );
+        static protected $tasksDirName = "Tasks";
         
         static protected $instance = null;
         protected $options = [];
         protected $argc = null;
         protected $argv = null;
+        protected $tasksDir = null;
         
         public function __construct($argc, $argv) {
             $this->options = getopt(self::$shortOptionsDecl, self::$fullOptionsDecl);
@@ -21,12 +23,32 @@ namespace Tman {
             }
             $this->argv = array_values($argv);
             $this->argc = count($this->argv);
-            $this->tasksDir = stream_resolve_include_path("Task");
+            $this->tasksDir = self::findTasksDir(defined('DIR_TASKS') ? DIR_TASKS : getcwd());
             if (!self::$instance instanceof static) {
                 self::$instance = $this;
             }
         }
-        
+
+
+        /**
+         * Рекурсивно ищем каталог с тасками в заданном дереве до первого подходящего
+         */
+        static private function findTasksDir($dir) {
+            $dirs = explode("/", $dir);
+            if (end($dirs) == self::$tasksDirName) {
+                return $dir;
+            }
+            foreach (glob("$dir/*") as $currentDir) {
+                if (is_dir($currentDir)) {
+                    $result = self::findTasksDir($currentDir);
+                    if (!empty($result)) {
+                        return $result;
+                    }
+                }
+            }
+            return null;
+        }
+
         public function run() {
             if ($this->argc == 1) {
                 self::usage();
@@ -54,9 +76,10 @@ namespace Tman {
         }
         
         public function scanDir(callable $callback, $tasksDir = null, $getPretendings = false) {
-            if (!$tasksDir) {
-                $tasksDir = stream_resolve_include_path("Task");
+            if (empty($tasksDir)) {
+                $tasksDir = $this->tasksDir;
             }
+            // echo "tasksDir: $tasksDir\n";
             foreach (glob("$tasksDir/*") as $taskFile) {
                 if (is_dir($taskFile)) {
                     self::scanDir($callback, $taskFile);
@@ -65,7 +88,8 @@ namespace Tman {
                 if (strtolower(pathinfo($taskFile, PATHINFO_EXTENSION)) !== 'php') {
                     continue;
                 }
-                $className = "Tman\\Task\\" .  str_replace(DS, "\\", substr($taskFile, strlen($this->tasksDir) + 1, -4));
+                $className = self::getTasksNs() .  str_replace(DS, "\\", substr($taskFile, strlen($this->tasksDir) + 1, -4));
+                // echo $className."::::$taskFile\n";
                 if (!class_exists($className)) {
                     continue;
                 }
@@ -76,7 +100,11 @@ namespace Tman {
                 $callback($className);
             }
         }
-        
+
+        static public function getTasksNs() {
+            return self::$tasksDirName . "\\";
+        }
+
         static public function getInstance() {
             return self::$instance;
         }

@@ -18,9 +18,7 @@ namespace Tman\TaskManager {
                 if (!$runTimes) {
                     return;
                 }
-                // опасная фигня ниже - требует, чтобы таски лежали в неймспейсе \Core\Tasks
-                // но не во всех подключенных проектах это будет так
-                $className = \Tman\TaskManager::fromClassName(substr($className, 10));
+                $className = \Tman\TaskManager::fromClassName(substr($className, strlen(\Tman\TaskManager::getTasksNs())));
                 foreach ((array)$runTimes as $args =>  $runTime) {
                     if (substr(trim($runTime), 0, 1) === '#' && $cleanOutput) continue;
                     $list []=  "$runTime tman run " . "$className" . (is_string($args) ? " $args" : "");

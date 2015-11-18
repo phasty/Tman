@@ -6,7 +6,7 @@ namespace Tman\TaskManager {
                 self::usage();
                 return;
             }
-            $taskClassName = "Tman\\Task\\" . array_shift($argv);
+            $taskClassName = \Tman\TaskManager::getTasksNs() . array_shift($argv);
             $task = \Tman\TaskManager::getClassInstance($taskClassName, [ "Tman\\Task\\ITask" ]);
             if (!$task) {
                 self::usage();

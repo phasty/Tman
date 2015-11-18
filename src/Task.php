@@ -1,11 +1,11 @@
 <?php
 namespace Tman {
+    use \Phasty\Log\File as log;
     abstract class Task implements \Tman\Task\ITask {
         static public $exceptions = [];
 
         protected $allowMultipleInstances = false;
         protected $canLog  = null;
-        protected $logFile = null;
         protected $verbose = false;
         private   $locks   = [];
 
@@ -26,18 +26,9 @@ namespace Tman {
 
         protected function setLogging() {
             $this->canLog = false;
-            $class = substr(preg_replace('#\W+#', '.', get_class($this)), 5);
-            $logFile = "/$class.log";
-            $logDir = DIR_LOGS . 'tasks/' . date('Y/m/d');
-            if (!is_dir($logDir)) {
-                umask(0);
-                if (!mkdir($logDir, 0777, true)) {
-                    return;
-                }
-            }
-            if (!touch($this->logFile = $logDir . $logFile)) {
-                return;
-            }
+            $class = substr(preg_replace('#\W+#', '.', get_class($this)), strlen(\Tman\TaskManager::getTasksNs()));
+            log::config([ "path" => DIR_LOGS . "tasks/%Y/%m/%d/%H/",
+                          "name" => "$class.log" ]);
             $this->canLog = true;
         }
 
@@ -106,6 +97,7 @@ namespace Tman {
         }
 
         protected function log($msg) {
+            $error = false;
             if ($msg instanceof \Exception) {
                 $msg = sprintf(
                     "Exception (%d) %s in %s:%d",
@@ -114,6 +106,7 @@ namespace Tman {
                     $msg->getFile(),
                     $msg->getLine()
                 );
+                $error = true;
             }
             if (!$this->canLog) {
                 echo "$msg\n";
@@ -122,7 +115,7 @@ namespace Tman {
             if ($this->verbose) {
                 echo "$msg\n";
             }
-            Logger::simpleAdd($msg, $this->logFile);
+            ($error) ? log::error($msg) : log::info($msg);
         }
         public function setVerbose($value) {
             $this->verbose = (int)$value;

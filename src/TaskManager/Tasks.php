@@ -28,7 +28,7 @@ namespace Tman\TaskManager {
                     $isInCron++;
                 }
                 $isInCron = $isInCron ? $isInCron == 1 ? "+\t" : "$isInCron\t" : " \t";
-                $list []= $isInCron . self::padString(substr(\Tman\TaskManager::fromClassName($className), 10)) . $className::getDescription();
+                $list []= $isInCron . self::padString(substr(\Tman\TaskManager::fromClassName($className), strlen(\Tman\TaskManager::getTasksNs()))) . $className::getDescription();
             });
             if (!empty($list)) {
                 $c = count($list);
