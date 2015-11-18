@@ -13,12 +13,12 @@ namespace Phasty\Tman\TaskManager {
                 $cleanOutput = true;
             }
             $list = [];
-            \Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$list, $cleanOutput) {
+            \Phasty\Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$list, $cleanOutput) {
                 $runTimes = $className::getRunTime();
                 if (!$runTimes) {
                     return;
                 }
-                $className = \Tman\TaskManager::fromClassName(substr($className, strlen(\Tman\TaskManager::getTasksNs())));
+                $className = \Phasty\Tman\TaskManager::fromClassName(substr($className, strlen(\Phasty\Tman\TaskManager::getTasksNs())));
                 foreach ((array)$runTimes as $args =>  $runTime) {
                     if (substr(trim($runTime), 0, 1) === '#' && $cleanOutput) continue;
                     $list []=  "$runTime tman run " . "$className" . (is_string($args) ? " $args" : "");

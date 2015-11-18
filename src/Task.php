@@ -26,7 +26,7 @@ namespace Phasty\Tman {
 
         protected function setLogging() {
             $this->canLog = false;
-            $class = substr(preg_replace('#\W+#', '.', get_class($this)), strlen(\Tman\TaskManager::getTasksNs()));
+            $class = substr(preg_replace('#\W+#', '.', get_class($this)), strlen(\Phasty\Tman\TaskManager::getTasksNs()));
             log::config([ "path" => DIR_LOGS . "tasks/%Y/%m/%d/%H/",
                           "name" => "$class.log" ]);
             $this->canLog = true;

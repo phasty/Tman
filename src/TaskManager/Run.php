@@ -6,8 +6,8 @@ namespace Phasty\Tman\TaskManager {
                 self::usage();
                 return;
             }
-            $taskClassName = \Tman\TaskManager::getTasksNs() . array_shift($argv);
-            $task = \Tman\TaskManager::getClassInstance($taskClassName, [ "Phasty\\Tman\\Task\\ITask" ]);
+            $taskClassName = \Phasty\Tman\TaskManager::getTasksNs() . array_shift($argv);
+            $task = \Phasty\Tman\TaskManager::getClassInstance($taskClassName, [ "Phasty\\Tman\\Task\\ITask" ]);
             if (!$task) {
                 self::usage();
                 return;

@@ -13,7 +13,7 @@ namespace Phasty\Tman\TaskManager {
             $this->showPretends = isset($options[ 'p' ]) || isset($options[ 'pretend' ]);
             $pretend = [];
             $list = [];
-            \Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$pretend, &$list) {
+            \Phasty\Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$pretend, &$list) {
                 $implements = class_implements($className);
                 if (!isset($implements[ "Phasty\\Tman\\Task\\ITask" ])) {
                     if ($this->showPretends) {
@@ -28,7 +28,7 @@ namespace Phasty\Tman\TaskManager {
                     $isInCron++;
                 }
                 $isInCron = $isInCron ? $isInCron == 1 ? "+\t" : "$isInCron\t" : " \t";
-                $list []= $isInCron . self::padString(substr(\Tman\TaskManager::fromClassName($className), strlen(\Tman\TaskManager::getTasksNs()))) . $className::getDescription();
+                $list []= $isInCron . self::padString(substr(\Phasty\Tman\TaskManager::fromClassName($className), strlen(\Phasty\Tman\TaskManager::getTasksNs()))) . $className::getDescription();
             });
             if (!empty($list)) {
                 $c = count($list);
