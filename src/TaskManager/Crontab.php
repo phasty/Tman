@@ -3,6 +3,7 @@ namespace Phasty\Tman\TaskManager {
     class Crontab implements IMethod {
         
         public function run($argc, array $argv) {
+            $cronDir = defined('DIR_ROOT') ? DIR_ROOT : getcwd() . "/";
             $options = getopt("c::h::", ["clean:", "help::"]);
             if (isset($options[ 'h' ]) || isset($options[ 'help' ])) {
                 self::usage();
@@ -13,7 +14,7 @@ namespace Phasty\Tman\TaskManager {
                 $cleanOutput = true;
             }
             $list = [];
-            \Phasty\Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$list, $cleanOutput) {
+            \Phasty\Tman\TaskManager::getInstance()->scanDir(function ($className) use (&$list, $cleanOutput, $cronDir) {
                 $runTimes = $className::getRunTime();
                 if (!$runTimes) {
                     return;
@@ -21,10 +22,10 @@ namespace Phasty\Tman\TaskManager {
                 $className = \Phasty\Tman\TaskManager::fromClassName(substr($className, strlen(\Phasty\Tman\TaskManager::getTasksNs())));
                 foreach ((array)$runTimes as $args =>  $runTime) {
                     if (substr(trim($runTime), 0, 1) === '#' && $cleanOutput) continue;
-                    $list []=  "$runTime " . (defined('DIR_ROOT') ? DIR_ROOT : getcwd() . "/") ."tman run " . "$className" . (is_string($args) ? " $args" : "");
+                    $list []=  "$runTime " . $cronDir ."tman run " . "$className" . (is_string($args) ? " $args" : "");
                 }
             });
-            echo implode("\n", $list)."\n";
+            echo implode(" #tman:$cronDir\n", $list)."\n";
         }
         
         static protected function usage() {
