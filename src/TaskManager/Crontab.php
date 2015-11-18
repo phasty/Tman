@@ -25,7 +25,7 @@ namespace Phasty\Tman\TaskManager {
                     $list []=  "$runTime " . $cronDir ."tman run " . "$className" . (is_string($args) ? " $args" : "");
                 }
             });
-            echo implode(" #tman:$cronDir\n", $list)."\n";
+            echo implode(" #tman:$cronDir\n", $list)." #tman:$cronDir\n";
         }
         
         static protected function usage() {
