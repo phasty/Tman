@@ -10,7 +10,8 @@ namespace Phasty\Tman {
         protected $cfg = ["logDir" => "", "tasksNs" => "Tasks\\"];
         private   $locks   = [];
 
-        public function __construct() {
+        public function __construct($config) {
+            $this->cfg = array_replace($this->cfg, $config);
             $this->setLogging();
             $this->setHandlers();
         }
@@ -23,18 +24,8 @@ namespace Phasty\Tman {
                 pcntl_signal(SIGINT,  [$this, 'sigHandler']);
                 pcntl_signal(SIGHUP,  [$this, 'sigHandler']);
             }
-        }
-        
-        /**
-         * Устанавливаем параметры для текущего окружения
-         *
-         * @param  array $config Массив с параметрами места логирования и неймспейса таски
-         *
-         * @return none
-         */        
-        public function setConfig($config=[]) {
-            array_replace($this->cfg, $config);
-        }
+        }      
+
         protected function setLogging() {
             $this->canLog = false;
             $class = substr(preg_replace('#\W+#', '.', get_class($this)), strlen($this->cfg["tasksNs"]));

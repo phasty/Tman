@@ -7,12 +7,11 @@ namespace Phasty\Tman\TaskManager {
                 return;
             }
             $taskClassName = $this->cfg["tasksNs"] . array_shift($argv);
-            $task = \Phasty\Tman\TaskManager::getClassInstance($taskClassName, [ "Phasty\\Tman\\Task\\ITask" ]);
+            $task = \Phasty\Tman\TaskManager::getClassInstance($taskClassName, [ "Phasty\\Tman\\Task\\ITask" ], $this->cfg);
             if (!$task) {
                 self::usage();
                 return;
             }
-            $task->setConfig($this->cfg);
             
             $options = getopt("v::", ["time-limit::", "verbose::"]);
             if (!empty($options["time-limit"])) {
@@ -26,7 +25,6 @@ namespace Phasty\Tman\TaskManager {
             if (isset($options['v']) || isset($options['verbose'])) {
                 $task->setVerbose(1);
             }
-            
             call_user_func_array([$task, "run"], $argv);
         }
         

@@ -5,16 +5,16 @@ namespace Phasty\Tman {
         static protected $fullOptionsDecl = array(
             "run:"
         );
-        static protected $cfg = [ "logDir"   => getcwd(), 
-                                  "tasksDir" => getcwd(), 
-                                  "tasksNs"  => "Tasks\\" ];
         
         static protected $instance = null;
         protected $options = [];
         protected $argc = null;
         protected $argv = null;
+        protected $cfg = [ "logDir"   => "./", 
+                           "tasksDir" => ".", 
+                           "tasksNs"  => "Tasks\\" ];        
         
-        public function __construct($argc, $argv, $config=[]) {
+        public function __construct($argc, $argv, array $config) {
             $this->options = getopt(self::$shortOptionsDecl, self::$fullOptionsDecl);
             $count = count($argv);
             for ($i = 0; $i < $count; $i++) {
@@ -24,7 +24,7 @@ namespace Phasty\Tman {
             }
             $this->argv = array_values($argv);
             $this->argc = count($this->argv);
-            array_replace(self::$cfg, $config);
+            $this->cfg = array_replace($this->cfg, $config);
             if (!self::$instance instanceof static) {
                 self::$instance = $this;
             }
@@ -43,7 +43,7 @@ namespace Phasty\Tman {
                 return;
             }
             
-            $class = self::getClassInstance($className, [ "Phasty\\Tman\\TaskManager\\IMethod" ]);
+            $class = self::getClassInstance($className, [ "Phasty\\Tman\\TaskManager\\IMethod" ], $this->cfg);
             
             if (!$class) {
                 self::usage();
@@ -53,14 +53,14 @@ namespace Phasty\Tman {
             $argv = $this->argv;
             array_shift($argv);
             array_shift($argv);
-            $class->setConfig(self::$cfg);
             $class->run($this->argc - 2, $argv);
         }
         
         public function scanDir(callable $callback, $tasksDir = null, $getPretendings = false) {
             if (empty($tasksDir)) {
-                $tasksDir = self::$cfg["tasksDir"];
+                $tasksDir = $this->cfg["tasksDir"];
             }
+            // echo "tasksDir=$tasksDir\n";
             foreach (glob("$tasksDir/*") as $taskFile) {
                 if (is_dir($taskFile)) {
                     self::scanDir($callback, $taskFile);
@@ -69,7 +69,8 @@ namespace Phasty\Tman {
                 if (strtolower(pathinfo($taskFile, PATHINFO_EXTENSION)) !== 'php') {
                     continue;
                 }
-                $className = self::$cfg['tasksNs'] . str_replace(DS, "\\", substr($taskFile, strlen(self::$cfg["tasksDir"]) + 1, -4));
+                $className = $this->cfg['tasksNs'] . str_replace(DS, "\\", substr($taskFile, strlen($this->cfg["tasksDir"]) + 1, -4));
+                // echo "$className\n";
                 if (!class_exists($className)) {
                     continue;
                 }
@@ -93,7 +94,7 @@ namespace Phasty\Tman {
             return str_replace("\\", "/", $className);
         }
         
-        static public function getClassInstance($className, array $interfaces = []) {
+        static public function getClassInstance($className, array $interfaces = [], array $config =[]) {
             $className = self::toClassName($className);
             if (!class_exists($className)) {
                 echo "Class '$className' is not defined\n";
@@ -107,7 +108,7 @@ namespace Phasty\Tman {
                     return null;
                 }
             }
-            return new $className;
+            return new $className($config);
         }
         
         static public function usage() {
