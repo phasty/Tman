@@ -5,15 +5,16 @@ namespace Phasty\Tman {
         static protected $fullOptionsDecl = array(
             "run:"
         );
-        static protected $tasksDirName = "Tasks";
+        static protected $cfg = [ "logDir"   => getcwd(), 
+                                  "tasksDir" => getcwd(), 
+                                  "tasksNs"  => "Tasks\\" ];
         
         static protected $instance = null;
         protected $options = [];
         protected $argc = null;
         protected $argv = null;
-        protected $tasksDir = null;
         
-        public function __construct($argc, $argv) {
+        public function __construct($argc, $argv, $config=[]) {
             $this->options = getopt(self::$shortOptionsDecl, self::$fullOptionsDecl);
             $count = count($argv);
             for ($i = 0; $i < $count; $i++) {
@@ -23,30 +24,10 @@ namespace Phasty\Tman {
             }
             $this->argv = array_values($argv);
             $this->argc = count($this->argv);
-            $this->tasksDir = self::findTasksDir(defined('DIR_TASKS') ? DIR_TASKS : getcwd());
+            array_replace(self::$cfg, $config);
             if (!self::$instance instanceof static) {
                 self::$instance = $this;
             }
-        }
-
-
-        /**
-         * Рекурсивно ищем каталог с тасками в заданном дереве до первого подходящего
-         */
-        static private function findTasksDir($dir) {
-            $dirs = explode("/", $dir);
-            if (end($dirs) == self::$tasksDirName) {
-                return $dir;
-            }
-            foreach (glob("$dir/*") as $currentDir) {
-                if (is_dir($currentDir)) {
-                    $result = self::findTasksDir($currentDir);
-                    if (!empty($result)) {
-                        return $result;
-                    }
-                }
-            }
-            return null;
         }
 
         public function run() {
@@ -72,12 +53,13 @@ namespace Phasty\Tman {
             $argv = $this->argv;
             array_shift($argv);
             array_shift($argv);
+            $class->setConfig(self::$cfg);
             $class->run($this->argc - 2, $argv);
         }
         
         public function scanDir(callable $callback, $tasksDir = null, $getPretendings = false) {
             if (empty($tasksDir)) {
-                $tasksDir = $this->tasksDir;
+                $tasksDir = self::$cfg["tasksDir"];
             }
             foreach (glob("$tasksDir/*") as $taskFile) {
                 if (is_dir($taskFile)) {
@@ -87,7 +69,7 @@ namespace Phasty\Tman {
                 if (strtolower(pathinfo($taskFile, PATHINFO_EXTENSION)) !== 'php') {
                     continue;
                 }
-                $className = self::getTasksNs() .  str_replace(DS, "\\", substr($taskFile, strlen($this->tasksDir) + 1, -4));
+                $className = self::$cfg['tasksNs'] . str_replace(DS, "\\", substr($taskFile, strlen(self::$cfg["tasksDir"]) + 1, -4));
                 if (!class_exists($className)) {
                     continue;
                 }
@@ -97,10 +79,6 @@ namespace Phasty\Tman {
                 }
                 $callback($className);
             }
-        }
-
-        static public function getTasksNs() {
-            return self::$tasksDirName . "\\";
         }
 
         static public function getInstance() {

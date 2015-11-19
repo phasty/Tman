@@ -7,5 +7,5 @@
 */
 
 require dirname(__FILE__).'/kernel/config.php';
-$taskManager = new \Phasty\Tman\TaskManager($argc, $argv);
+$taskManager = new \Phasty\Tman\TaskManager($argc, $argv, ["logDir" => DIR_LOGS, "tasksDir" => DIR_TASKS, "tasksNs" => "Tasks\\"]);
 $taskManager->run();

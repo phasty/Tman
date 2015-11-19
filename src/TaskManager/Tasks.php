@@ -1,8 +1,7 @@
 <?php
 namespace Phasty\Tman\TaskManager {
-    class Tasks implements IMethod {
+    class Tasks extends TAction {
         protected $showPretends = false;
-        protected $rootDirLen = 0;
         
         public function run($argc, array $argv) {
             $options = getopt("p::h::", ["pretend:", "help::"]);
@@ -28,7 +27,7 @@ namespace Phasty\Tman\TaskManager {
                     $isInCron++;
                 }
                 $isInCron = $isInCron ? $isInCron == 1 ? "+\t" : "$isInCron\t" : " \t";
-                $list []= $isInCron . self::padString(substr(\Phasty\Tman\TaskManager::fromClassName($className), strlen(\Phasty\Tman\TaskManager::getTasksNs()))) . $className::getDescription();
+                $list []= $isInCron . self::padString(substr(\Phasty\Tman\TaskManager::fromClassName($className), strlen($this->cfg["tasksNs"]))) . $className::getDescription();
             });
             if (!empty($list)) {
                 $c = count($list);

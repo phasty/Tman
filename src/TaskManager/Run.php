@@ -1,17 +1,18 @@
 <?php
 namespace Phasty\Tman\TaskManager {
-    class Run implements IMethod {
+    class Run extends TAction {
         public function run($argc, array $argv) {
             if (empty($argc)) {
                 self::usage();
                 return;
             }
-            $taskClassName = \Phasty\Tman\TaskManager::getTasksNs() . array_shift($argv);
+            $taskClassName = $this->cfg["tasksNs"] . array_shift($argv);
             $task = \Phasty\Tman\TaskManager::getClassInstance($taskClassName, [ "Phasty\\Tman\\Task\\ITask" ]);
             if (!$task) {
                 self::usage();
                 return;
             }
+            $task->setConfig($this->cfg);
             
             $options = getopt("v::", ["time-limit::", "verbose::"]);
             if (!empty($options["time-limit"])) {
