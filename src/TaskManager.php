@@ -12,7 +12,8 @@ namespace Phasty\Tman {
         protected $argv = null;
         protected $cfg = [ "logDir"   => "./", 
                            "tasksDir" => ".", 
-                           "tasksNs"  => "Tasks\\" ];        
+                           "tasksNs"  => "Tasks\\",
+                           "tman"     => "./tman" ];        
         
         public function __construct($argc, $argv, array $config) {
             $this->options = getopt(self::$shortOptionsDecl, self::$fullOptionsDecl);
