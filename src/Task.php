@@ -30,7 +30,7 @@ namespace Phasty\Tman {
             $this->canLog = false;
             $class = substr(preg_replace('#\W+#', '.', get_class($this)), strlen($this->cfg["tasksNs"]));
             log::config([ "path" => $this->cfg["logDir"] . "tasks/%Y/%m/%d/",
-                          "name" => "$class.log" ]);
+                          "name" => "$class" ]);
             $this->canLog = true;
         }
 

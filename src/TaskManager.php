@@ -69,7 +69,7 @@ namespace Phasty\Tman {
                 if (strtolower(pathinfo($taskFile, PATHINFO_EXTENSION)) !== 'php') {
                     continue;
                 }
-                $className = $this->cfg['tasksNs'] . str_replace(DS, "\\", substr($taskFile, strlen($this->cfg["tasksDir"]) + 1, -4));
+                $className = $this->cfg['tasksNs'] . str_replace("/", "\\", substr($taskFile, strlen($this->cfg["tasksDir"]) + 1, -4));
                 // echo "$className\n";
                 if (!class_exists($className)) {
                     continue;
