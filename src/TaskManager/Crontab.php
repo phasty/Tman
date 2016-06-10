@@ -24,7 +24,9 @@ namespace Phasty\Tman\TaskManager {
                     $list []=  "$runTime " . $this->cfg["tman"] . " run " . "$className" . (is_string($args) ? " $args" : "");
                 }
             });
-            echo implode(" #tman:" . $this->cfg["tman"] . "\n", $list)." #tman:" . $this->cfg["tman"] . "\n";
+            if (!empty($list)) {
+                echo implode(" #tman:" . $this->cfg["tman"] . "\n", $list)." #tman:" . $this->cfg["tman"] . "\n";
+            }
         }
         
         static protected function usage() {
