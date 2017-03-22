@@ -150,13 +150,36 @@ namespace Phasty\Tman {
             $this->log("Stop task");
         }
 
+        protected function logByType($msg, $type) {
+            if (!$this->canLog) {
+                echo "$msg\n";
+                return;
+            }
+            if ($this->verbose) {
+                echo "$msg\n";
+            }
+            switch ($type) {
+                case 'error' : {
+                    log::error($msg);
+                    break;
+                }
+                case 'debug' : {
+                    log::debug($msg);
+                    break;
+                }
+                default : {
+                    log::info($msg);
+                }
+            }
+        }
+
         /**
          * Производит запись строки в лог-файл
          *
          * @param string $msg
          */
         protected function log($msg) {
-            $error = false;
+            $type = 'info';
             if ($msg instanceof \Exception) {
                 $msg = sprintf(
                     "Exception (%d) %s in %s:%d",
@@ -165,16 +188,9 @@ namespace Phasty\Tman {
                     $msg->getFile(),
                     $msg->getLine()
                 );
-                $error = true;
+                $type = 'error';
             }
-            if (!$this->canLog) {
-                echo "$msg\n";
-                return;
-            }
-            if ($this->verbose) {
-                echo "$msg\n";
-            }
-            ($error) ? log::error($msg) : log::info($msg);
+            $this->logByType($msg, $type);
         }
 
         /**

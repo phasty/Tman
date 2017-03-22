@@ -75,6 +75,9 @@ namespace Phasty\Tman {
                 if (!class_exists($className)) {
                     continue;
                 }
+                if ((new \ReflectionClass($className))->isAbstract()) {
+                    continue;
+                }
                 $implements = class_implements($className);
                 if (!isset($implements[ "Phasty\\Tman\\Task\\ITask" ]) & !$getPretendings) {
                     continue;
