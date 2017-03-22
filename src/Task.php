@@ -3,12 +3,17 @@ namespace Phasty\Tman {
     use \Phasty\Log\File as log;
     abstract class Task implements \Phasty\Tman\Task\ITask {
         static public $exceptions = [];
-
         protected $allowMultipleInstances = false;
         protected $canLog  = null;
         protected $verbose = false;
         protected $cfg = ["logDir" => "", "tasksNs" => "Tasks\\"];
         private   $locks   = [];
+        /**
+         * Асинхронная обработка сигналов - по тикам или через pcntl_async_signals(true) в PHP 7.1
+         *
+         * @var bool
+         */
+        protected $useAsyncSignalHandlers = false;
 
         public function __construct($config) {
             $this->cfg = array_replace($this->cfg, $config);
@@ -16,7 +21,27 @@ namespace Phasty\Tman {
             $this->setHandlers();
         }
 
-        protected function setHandlers() {declare(ticks=1);
+        /**
+         * Устанавливает период срабатывания зарегистрированных обработчиков тиков
+         * А до PHP 7.1 вызывает и обработчки внешних сигнала.
+         * С PHP 7.1 для асинхронной обработки внешних сигналов нужно использовать  pcntl_async_signals(true)
+         * С PHP 5.3 обработчики сигнала можно вызвать явно через pcntl_signal_dispatch()
+         * Т.к. в delare передается константа, и выполняется это в момент прогрузки файла, если не спрятано в eval
+         * то проще всего переопределить функцию в дочернем классе, если необходимо
+         */
+        protected function setTicksGlobal() {
+            // На самом деле 1 - это очень часто и больно бьет по производительности
+            // надо прятать в eval иначе ticks установится глобально в момент чтения файла
+            // по аналогии с const
+            eval("declare(ticks = 1);");
+        }
+
+        /**
+         * Устанавливает обработчики внешних сигналов и принцип их обработки -
+         * синхронно по вызову pcntl_signal_dispatch()
+         * или аснихронно - по тикам или pcntl_async_signals(true)
+         */
+        protected function setHandlers() {
             set_error_handler([$this, 'errorHandler']);
             register_shutdown_function([$this, 'shutdownHandler']);
             if (function_exists('pcntl_signal')) {
@@ -24,8 +49,28 @@ namespace Phasty\Tman {
                 pcntl_signal(SIGINT,  [$this, 'sigHandler']);
                 pcntl_signal(SIGHUP,  [$this, 'sigHandler']);
             }
-        }      
 
+
+            if ($this->useAsyncSignalHandlers) {
+                /* Для асинхронной обработки сигналов */
+                if (function_exists('pcntl_async_signals')) {
+                    // PHP 7.1 and UP
+                    // Для асинхронной обработки сигналов вместо тиков используется:
+                    pcntl_async_signals(true);
+                } else {
+                    // PHP under 7.1
+                    // php 7.0 не очень ясно срабатывают хендлеры прерываний по тикам
+                    // если нет, то надо вешать register_tick_function() и дергать dispatch
+                    $this->setTicksGlobal();
+                }
+            }
+            // Если же задана синхронная обработка сигналов,
+            // то нужно делать явный вызов pcntl_signal_dispatch() для обработки внешних сигналов
+        }
+
+        /**
+         * Устанавливает опции для записи логов
+         */
         protected function setLogging() {
             $this->canLog = false;
             $class = substr(preg_replace('#\W+#', '.', get_class($this)), strlen($this->cfg["tasksNs"]));
@@ -54,7 +99,7 @@ namespace Phasty\Tman {
          * Пытается получить блокировку на файл
          *
          * @param  string $file Файл, блокировку к которому нужно получить
-         * @param  string $mod  Режим открытия файла
+         * @param  string $mode Режим открытия файла
          *
          * @return bool Получена ли блокировка
          */
@@ -73,6 +118,8 @@ namespace Phasty\Tman {
          * Освободить блокировку файла
          *
          * @param  string $file Файл, блокировку которого нужно освободить
+         *
+         * @throws \Exception
          */
         protected function unlock($file) {
             if (!isset($this->locks[ $file ])) {
@@ -82,6 +129,11 @@ namespace Phasty\Tman {
             unset($this->locks[ $file ]);
         }
 
+        /**
+         * Ставит блокировку и запускает выполнение таски
+         *
+         * @throws \Exception
+         */
         public function run() {
             try {
                 $this->log("Start task");
@@ -98,6 +150,11 @@ namespace Phasty\Tman {
             $this->log("Stop task");
         }
 
+        /**
+         * Производит запись строки в лог-файл
+         *
+         * @param string $msg
+         */
         protected function log($msg) {
             $error = false;
             if ($msg instanceof \Exception) {
@@ -119,6 +176,12 @@ namespace Phasty\Tman {
             }
             ($error) ? log::error($msg) : log::info($msg);
         }
+
+        /**
+         * Устанавливает режим вывода лога в консоль
+         *
+         * @param $value
+         */
         public function setVerbose($value) {
             $this->verbose = (int)$value;
         }
