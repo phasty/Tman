@@ -13,7 +13,7 @@ namespace Phasty\Tman {
          *
          * @var bool
          */
-        protected $useAsyncSignalHandlers = false;
+        protected $useAsyncSignalHandlers = true;
 
         public function __construct($config) {
             $this->cfg = array_replace($this->cfg, $config);
