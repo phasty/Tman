@@ -10,8 +10,8 @@ namespace Phasty\Tman {
                            "tman"     => "./tman" ];        
         
         public function __construct($argc, $argv, array $config) {
-            $this->argv = array_values($argv);
-            $this->argc = count($this->argv);
+            $this->argv = $argv;
+            $this->argc = $argc;
             $this->cfg = array_replace($this->cfg, $config);
             if (!self::$instance instanceof static) {
                 self::$instance = $this;
