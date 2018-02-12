@@ -1,13 +1,7 @@
 <?php
 namespace Phasty\Tman {
     class TaskManager {
-        static protected $shortOptionsDecl = "r:";
-        static protected $fullOptionsDecl = array(
-            "run:"
-        );
-        
         static protected $instance = null;
-        protected $options = [];
         protected $argc = null;
         protected $argv = null;
         protected $cfg = [ "logDir"   => "./", 
@@ -16,15 +10,8 @@ namespace Phasty\Tman {
                            "tman"     => "./tman" ];        
         
         public function __construct($argc, $argv, array $config) {
-            $this->options = getopt(self::$shortOptionsDecl, self::$fullOptionsDecl);
-            $count = count($argv);
-            for ($i = 0; $i < $count; $i++) {
-                if (substr($argv[ $i ], 0, 1) == '-') {
-                    unset($argv[ $i ]);
-                }
-            }
-            $this->argv = array_values($argv);
-            $this->argc = count($this->argv);
+            $this->argv = $argv;
+            $this->argc = $argc;
             $this->cfg = array_replace($this->cfg, $config);
             if (!self::$instance instanceof static) {
                 self::$instance = $this;
